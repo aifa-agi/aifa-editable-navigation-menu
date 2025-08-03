@@ -18,6 +18,12 @@
 > An advanced, fully editable, and open-source navigation menu for React/Next.js. Now you can manage categories and links, reorder, rename, control badges and roles—all directly in the navigation bar UI, without any separate admin panel.
 
 <p align="center">
+  <a href="https://github.com/aifa-agi/aifa-navigation-menu/stargazers" target="_blank">
+    <img alt="Star the AIFA repo on GitHub to support the project" src="https://raw.githubusercontent.com/aifa-agi/aifa/main/public/_static/images/git-star-us.gif" width="50%">
+  </a>
+</p>
+
+<p align="center">
   <video controls width="800" poster="public/images/editable-nav-bar-base-interface.png">
     <source src="public/video/editable-nav-bar-menu-nextjs-starter.mp4" type="video/mp4">
     Your browser does not support the video tag.
