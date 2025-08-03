@@ -23,12 +23,6 @@
   </a>
 </p>
 
-<p align="center">
-  <video controls width="800" poster="./public/images/editable-nav-bar-base-interface.png">
-    <source src="./public/video/editable-nav-bar-menu-nextjs-starter.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-</p>
 
 ## 🚀 About The Project
 
@@ -100,11 +94,6 @@ _To get a local copy up and running, follow these simple steps..._
 
 ---
 
-## 🎬 Demo
-
-Check the video at the top of this README for a real workflow overview. Screenshots above show interface details.
-
----
 
 ## ℹ️ Roadmap
 
