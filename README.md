@@ -7,8 +7,8 @@
   <a href="https://www.gnu.org/licenses/agpl-3.0" target="_blank">
     <img alt="License: AGPL v3" src="https://img.shields.io/badge/License-AGPLv3-blue.svg?style=for-the-badge">
   </a>
-  <a href="https://github.com/aifa-dev/aifa-editable-navigation-menu/" target="_blank">
-    <img alt="GitHub stars" src="https://img.shields.io/github/stars/aifa-dev/aifa-editable-navigation-menu?style=for-the-badge&logo=github">
+  <a href="https://github.com/aifa-agi/aifa-editable-navigation-menu/stargazers" target="_blank">
+    <img alt="GitHub stars" src="https://img.shields.io/github/stars/aifa-agi/aifa-editable-navigation-menu?style=for-the-badge&logo=github">
   </a>
   <a href="https://x.com/aifa_agi" target="_blank">
     <img alt="Follow on X" src="https://img.shields.io/twitter/follow/aifa_agi?style=for-the-badge&logo=x">
