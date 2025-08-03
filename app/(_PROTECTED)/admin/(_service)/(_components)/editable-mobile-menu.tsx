@@ -3,7 +3,12 @@
 "use client";
 
 import type React from "react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { MenuCategory, MenuLink } from "@/types/menu-types";
 import { cn } from "@/lib/utils";
@@ -24,7 +29,6 @@ export default function EditableMobileMenu({
   categories,
   setCategories,
 }: EditableMobileMenuProps) {
-
   const renderCategoryLinks = (categoryLinks: MenuLink[]) => (
     <ul className="space-y-3 py-2">
       {categoryLinks.map((link) => (
@@ -43,7 +47,12 @@ export default function EditableMobileMenu({
                     "shadow-none rounded-full px-2.5 py-0.5 text-xs font-semibold"
                   )}
                 >
-                  <div className={cn("h-1.5 w-1.5 rounded-full mr-2", greenDotClass)} />
+                  <div
+                    className={cn(
+                      "h-1.5 w-1.5 rounded-full mr-2",
+                      greenDotClass
+                    )}
+                  />
                   {link.badgeName}
                 </Badge>
               </div>
@@ -70,6 +79,9 @@ export default function EditableMobileMenu({
         style={{ height: `calc(100vh - ${topOffset} - 100px)` }}
       >
         <h2 className="text-2xl font-bold mb-4 text-left">Mobile Menu</h2>
+        <p className="leading-7 ">
+          The mobile menu in this starter is currently unavailable for editing, use the full-screen version.
+        </p>
         <div className="flex-1 overflow-y-auto scrollbar-hide">
           <Accordion type="single" collapsible className="w-full">
             {categories.map((category, index) => (
