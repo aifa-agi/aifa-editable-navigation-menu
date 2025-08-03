@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./public/1024.png" alt="AIFA Logo" width="120" height="120" style="border-radius:50%; box-shadow:0 2px 12px #00000022;">
+  <img src="./public//favicons1024.png" alt="AIFA Logo" width="120" height="120" style="border-radius:50%; box-shadow:0 2px 12px #00000022;">
 </p>
 
 <h1 align="center">AIFA Editable Navigation Menu</h1>
@@ -24,8 +24,8 @@
 </p>
 
 <p align="center">
-  <video controls width="800" poster="public/images/editable-nav-bar-base-interface.png">
-    <source src="public/video/editable-nav-bar-menu-nextjs-starter.mp4" type="video/mp4">
+  <video controls width="800" poster="./public/images/editable-nav-bar-base-interface.png">
+    <source src="./public/video/editable-nav-bar-menu-nextjs-starter.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
 </p>
