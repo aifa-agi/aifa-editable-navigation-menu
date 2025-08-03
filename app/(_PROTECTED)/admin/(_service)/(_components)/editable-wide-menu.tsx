@@ -1,8 +1,6 @@
-// @/app/(_PROTECTED)/admin/(_service)/(_components)/editable-wide-menu.tsx
-
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +10,22 @@ import { MenuCategory, MenuLink } from "@/types/menu-types";
 import { LinkActionsDropdown } from "./link-actions-dropdown";
 import { CategoryActionsDropdown } from "./category-actions-dropdown";
 import { useDialogs } from "@/app/contexts/dialogs-providers";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from "@dnd-kit/sortable";
+
+const greenDotClass = "bg-emerald-500";
 
 interface WideMenuProps {
   isOpen: boolean;
@@ -23,7 +37,71 @@ interface WideMenuProps {
   onUpdate: () => void;
 }
 
-const greenDotClass = "bg-emerald-500";
+function DraggableCategoryCard({
+  category,
+  isActive,
+  onClick,
+  children,
+  ...rest
+}: {
+  category: MenuCategory;
+  isActive: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  const { setNodeRef, attributes, listeners, transform, transition, isDragging } =
+    useSortable({ id: category.title });
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: transform
+          ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+          : undefined,
+        transition,
+        opacity: isDragging ? 0.6 : 1,
+        zIndex: isDragging ? 20 : 1,
+      }}
+      {...attributes}
+      {...listeners}
+      onClick={onClick}
+      aria-selected={isActive}
+    >
+      {children}
+    </div>
+  );
+}
+
+function DraggableMenuLink({
+  link,
+  categoryTitle,
+  children,
+}: {
+  link: MenuLink;
+  categoryTitle: string;
+  children: React.ReactNode;
+}) {
+  const { setNodeRef, attributes, listeners, transform, transition, isDragging } =
+    useSortable({ id: link.name });
+  return (
+    <li
+      ref={setNodeRef}
+      style={{
+        transform: transform
+          ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+          : undefined,
+        transition,
+        opacity: isDragging ? 0.6 : 1,
+        zIndex: isDragging ? 20 : 1,
+      }}
+      className="group flex items-center px-2 h-10 relative"
+      {...attributes}
+      {...listeners}
+    >
+      {children}
+    </li>
+  );
+}
 
 export default function EditableWideMenu({
   isOpen,
@@ -37,46 +115,84 @@ export default function EditableWideMenu({
   const dialogs = useDialogs();
   const [activeCategoryTitle, setActiveCategoryTitle] = useState<string | null>(null);
 
-  const activeCategory = activeCategoryTitle
-    ? categories.find((cat) => cat.title === activeCategoryTitle)
-    : null;
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
-  const renderCategoryLinks = (links: MenuLink[]) => (
-    <ul className="space-y-0 pr-1">
-      {links.map((link, idx) => (
-        <li
-          key={link.name}
-          className={cn(
-            idx % 2 === 0 ? "bg-background" : "bg-muted",
-            "group flex items-center px-2 h-10 relative"
-          )}
-        >
-          <div className="flex-grow flex items-center gap-2 overflow-hidden">
-            <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-              {link.name}
-            </span>
-            {link.hasBadge && link.badgeName && (
-              <Badge className="shadow-none rounded-full px-2.5 py-0.5 text-xs font-semibold h-6 flex items-center">
-                <div className={cn("h-1.5 w-1.5 rounded-full mr-2", greenDotClass)} />
-                {link.badgeName}
-              </Badge>
-            )}
-          </div>
-          <LinkActionsDropdown
-            link={link}
-            categoryTitle={activeCategoryTitle!}
-            setCategories={setCategories}
-          />
-          <span
-            className="flex items-center justify-center w-8 h-8 cursor-grab rounded hover:bg-accent/60 ml-1"
-            tabIndex={-1}
-          >
-            <GripVertical className="w-4 h-4 text-primary/80" />
-          </span>
-          <div className="absolute left-0 bottom-0 w-full h-px bg-border opacity-50 pointer-events-none" />
-        </li>
-      ))}
-    </ul>
+  const activeCategory = useMemo(
+    () => categories.find((cat) => cat.title === activeCategoryTitle) ?? null,
+    [categories, activeCategoryTitle]
+  );
+
+  const handleCategoryDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const oldIndex = categories.findIndex((c) => c.title === active.id);
+      const newIndex = categories.findIndex((c) => c.title === over?.id);
+      setCategories((items) => arrayMove(items, oldIndex, newIndex));
+    }
+  };
+
+  const handleLinkDragEnd = (event: DragEndEvent) => {
+    if (!activeCategory) return;
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      setCategories((cats) =>
+        cats.map((cat) =>
+          cat.title !== activeCategory.title
+            ? cat
+            : {
+                ...cat,
+                links: arrayMove(
+                  cat.links,
+                  cat.links.findIndex((l) => l.name === active.id),
+                  cat.links.findIndex((l) => l.name === over?.id)
+                ),
+              }
+        )
+      );
+    }
+  };
+
+  const renderCategoryLinks = (links: MenuLink[], categoryTitle: string) => (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleLinkDragEnd}
+    >
+      <SortableContext
+        items={links.map((link) => link.name)}
+        strategy={verticalListSortingStrategy}
+      >
+        <ul className="space-y-0 pr-1">
+          {links.map((link, idx) => (
+            <DraggableMenuLink key={link.name} link={link} categoryTitle={categoryTitle}>
+              <div className="flex-grow flex items-center gap-2 overflow-hidden">
+                <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+                  {link.name}
+                </span>
+                {link.hasBadge && link.badgeName && (
+                  <Badge className="shadow-none rounded-full px-2.5 py-0.5 text-xs font-semibold h-6 flex items-center">
+                    <div className={cn("h-1.5 w-1.5 rounded-full mr-2", greenDotClass)} />
+                    {link.badgeName}
+                  </Badge>
+                )}
+              </div>
+              <LinkActionsDropdown
+                link={link}
+                categoryTitle={categoryTitle}
+                setCategories={setCategories}
+              />
+              <span
+                className="flex items-center justify-center w-8 h-8 cursor-grab rounded hover:bg-accent/60 ml-1"
+                tabIndex={-1}
+              >
+                <GripVertical className="w-4 h-4 text-primary/80" />
+              </span>
+              <div className="absolute left-0 bottom-0 w-full h-px bg-border opacity-50 pointer-events-none" />
+            </DraggableMenuLink>
+          ))}
+        </ul>
+      </SortableContext>
+    </DndContext>
   );
 
   const handleAddCategory = () => {
@@ -146,7 +262,6 @@ export default function EditableWideMenu({
       style={{ maxWidth: "80vw", top: "120px", height: "432px" }}
     >
       <div className="flex h-full">
-        {/* Left panel: links */}
         <div className="flex-1 p-8 pb-12 flex flex-col custom-scrollbar">
           {activeCategory ? (
             <div className="relative flex-1 flex flex-col h-full min-h-0">
@@ -171,7 +286,7 @@ export default function EditableWideMenu({
                 </div>
               </div>
               <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
-                {renderCategoryLinks(activeCategory.links)}
+                {renderCategoryLinks(activeCategory.links, activeCategory.title)}
               </div>
             </div>
           ) : (
@@ -180,64 +295,78 @@ export default function EditableWideMenu({
             </div>
           )}
         </div>
-        {/* Right panel: categories, Add Category card, update button */}
         <div className="w-80 bg-gray-900 p-8 flex flex-col">
           <h3 className="text-gray-400 text-sm font-semibold mb-2 tracking-wider">
             CATEGORIES
           </h3>
-          <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar">
-            {categories.map((category) => (
-              <div key={category.title} className="p-1">
-                <Card
-                  className={cn(
-                    "bg-gray-800 p-4 rounded-lg hover:bg-gray-700 transition-colors duration-200 cursor-pointer h-[60px]",
-                    activeCategoryTitle === category.title
-                      ? "ring-2 ring-white"
-                      : ""
-                  )}
-                  onClick={() =>
-                    setActiveCategoryTitle(
-                      activeCategoryTitle === category.title ? null : category.title
-                    )
-                  }
-                >
-                  <CardContent className="flex items-center justify-between p-0 h-full">
-                    <h4 className="text-white font-semibold text-base line-clamp-1 whitespace-nowrap overflow-hidden">
-                      {category.title}
-                    </h4>
-                    <div className="flex items-center gap-1 ml-3">
-                      <CategoryActionsDropdown
-                        categoryTitle={category.title}
-                        setCategories={setCategories}
-                      />
-                      <span
-                        className="flex items-center justify-center w-8 h-8 cursor-grab rounded hover:bg-accent/60"
-                        tabIndex={-1}
-                      >
-                        <GripVertical className="w-4 h-4 text-primary/80" />
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleCategoryDragEnd}
+          >
+            <SortableContext
+              items={categories.map((cat) => cat.title)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="flex-1 overflow-y-auto space-y-2 px-2 pt-2 custom-scrollbar">
+                {categories.map((category) => (
+                  <DraggableCategoryCard
+                    key={category.title}
+                    category={category}
+                    isActive={activeCategoryTitle === category.title}
+                    onClick={() =>
+                      setActiveCategoryTitle(
+                        activeCategoryTitle === category.title
+                          ? null
+                          : category.title
+                      )
+                    }
+                  >
+                    <Card
+                      className={cn(
+                        "bg-gray-800 p-4 rounded-lg hover:bg-gray-700 transition-colors duration-200 cursor-pointer h-[60px]",
+                        activeCategoryTitle === category.title ? "ring-2 ring-white" : ""
+                      )}
+                    >
+                      <CardContent className="flex items-center justify-between p-0 h-full">
+                        <h4 className="text-white font-semibold text-base line-clamp-1 whitespace-nowrap overflow-hidden">
+                          {category.title}
+                        </h4>
+                        <div className="flex items-center gap-1 ml-3">
+                          <CategoryActionsDropdown
+                            categoryTitle={category.title}
+                            setCategories={setCategories}
+                          />
+                          <span
+                            className="flex items-center justify-center w-8 h-8 cursor-grab rounded hover:bg-accent/60"
+                            tabIndex={-1}
+                          >
+                            <GripVertical className="w-4 h-4 text-primary/80" />
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </DraggableCategoryCard>
+                ))}
+                <div className="p-1 mt-1">
+                  <Card
+                    className={cn(
+                      "bg-black border-2 border-green-500 p-4 rounded-lg cursor-pointer flex items-center justify-center h-[60px] min-h-[60px] hover:bg-green-950/40 transition"
+                    )}
+                    onClick={handleAddCategory}
+                    tabIndex={0}
+                    style={{ borderStyle: "dashed" }}
+                  >
+                    <CardContent className="flex items-center justify-center p-0 h-full w-full">
+                      <span className="text-green-400 font-semibold text-base">
+                        Add category
                       </span>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
-            ))}
-            <div className="p-1 mt-1">
-              <Card
-                className={cn(
-                  "bg-black border-2 border-green-500 p-4 rounded-lg cursor-pointer flex items-center justify-center h-[60px] min-h-[60px] hover:bg-green-950/40 transition"
-                )}
-                onClick={handleAddCategory}
-                tabIndex={0}
-                style={{ borderStyle: "dashed" }}
-              >
-                <CardContent className="flex items-center justify-center p-0 h-full w-full">
-                  <span className="text-green-400 font-semibold text-base">
-                    Add category
-                  </span>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+            </SortableContext>
+          </DndContext>
           <Button
             type="button"
             className="w-full mt-4"

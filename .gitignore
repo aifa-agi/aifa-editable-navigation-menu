@@ -1,14 +1,14 @@
-# зависимости
+
 /node_modules
 
-# тесты
+
 /coverage
 
-# продакшн-сборка
+
 /.next
 /out
 
-# разное
+
 .DS_Store
 .env
 .env.*.local
@@ -18,16 +18,16 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# vercel
+
 .vercel
 
-# локальные файлы
+
 *.local
 
-# TypeScript
+
 *.tsbuildinfo
 
-# редакторы
+
 .idea/
 *.swp
 .vscode/
