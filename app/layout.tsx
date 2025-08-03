@@ -13,7 +13,7 @@ import { NavigationMenuProvider } from "@/app/contexts/navigation-menu-provider"
 
 export const metadata: Metadata = {
   title: 'AIFA EDITABLE NAVIGATION MENU NEXTJS STARTER ',
-  description: 'An elegant, adaptive, open-source navigation menu designed for React/Next.js . It allows you to easily manage an infinite number of nested links and categories, as well as control access to menu items based on user roles.',
+  description: 'Take your Next.js project to the next level with a truly dynamic navigation menu! 🛠️✨ With the new editable-nav-bar-nextjs-starter, you can add, rename, reorder, and manage all your categories and links—directly from the live menu interface. Instantly assign roles, set badges, and experience real-time updates without diving into a separate admin panel. Perfect for SaaS, dashboards, and any modern web app looking for a seamless, in-menu admin experience.',
   generator: 'aifa.dev',
   icons: "/logo.png",
 }
