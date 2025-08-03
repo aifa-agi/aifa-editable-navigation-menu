@@ -1,15 +1,11 @@
-// @/app/(_PUBLIC)/(_serice)/(_components)/mobile-menu.tsx
-
-"use client";
-
-import type React from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { menuData } from "../../../config.ts/menu-data";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "../../../../lib/utils";
-import { MenuLink } from "@/types/menu-types";
-import { useRole } from "@/app/contexts/role-provider";
+'use client';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { MenuLink } from '@/types/menu-types';
+import { useRole } from '@/app/contexts/role-provider';
+import { useNavigationMenu } from '@/app/contexts/navigation-menu-provider';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -17,15 +13,15 @@ interface MobileMenuProps {
   topOffset: string;
 }
 
-const greenDotClass = "bg-emerald-500";
+const greenDotClass = 'bg-emerald-500';
 
 export default function MobileMenu({ isOpen, topOffset }: MobileMenuProps) {
   const { role } = useRole();
+  const { categories } = useNavigationMenu();
 
-  const getFilteredLinks = (links: MenuLink[]) =>
-    links.filter((link) => link.roles.includes(role));
+  const getFilteredLinks = (links: MenuLink[]) => links.filter((link) => link.roles.includes(role));
 
-  const roleFilteredCategories = menuData.categories
+  const roleFilteredCategories = categories
     .map((category) => ({
       ...category,
       links: getFilteredLinks(category.links),
@@ -36,28 +32,17 @@ export default function MobileMenu({ isOpen, topOffset }: MobileMenuProps) {
     <ul className="space-y-3 py-2">
       {categoryLinks.map((link) => (
         <li key={link.name}>
-          <a
-            href={link.href ?? "#"}
-            className="flex items-center text-white transition-colors duration-200 relative"
-          >
+          <a href={link.href ?? '#'} className="flex items-center text-white transition-colors duration-200 relative">
             {link.hasBadge && link.badgeName ? (
               <div className="flex items-center justify-between gap-2 w-full">
-                <span className="flex-grow overflow-hidden whitespace-nowrap text-ellipsis flex items-center gap-2">
-                  {link.name}
-                </span>
-                <Badge
-                  className={cn(
-                    "shadow-none rounded-full px-2.5 py-0.5 text-xs font-semibold"
-                  )}
-                >
-                  <div className={cn("h-1.5 w-1.5 rounded-full mr-2", greenDotClass)} />
+                <span className="flex-grow overflow-hidden whitespace-nowrap text-ellipsis flex items-center gap-2">{link.name}</span>
+                <Badge className={cn('shadow-none rounded-full px-2.5 py-0.5 text-xs font-semibold')}>
+                  <div className={cn('h-1.5 w-1.5 rounded-full mr-2', greenDotClass)} />
                   {link.badgeName}
                 </Badge>
               </div>
             ) : (
-              <span className="flex items-center gap-2 overflow-hidden whitespace-nowrap text-ellipsis">
-                {link.name}
-              </span>
+              <span className="flex items-center gap-2 overflow-hidden whitespace-nowrap text-ellipsis">{link.name}</span>
             )}
           </a>
         </li>
@@ -74,12 +59,9 @@ export default function MobileMenu({ isOpen, topOffset }: MobileMenuProps) {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
         >
-          <div
-            className="bg-black text-white rounded-lg shadow-2xl border border-gray-700 p-6 mx-6 mb-6 w-full max-w-md flex flex-col"
-            style={{ height: `calc(100vh - ${topOffset} - 100px)` }}
-          >
+          <div className="bg-black text-white rounded-lg shadow-2xl border border-gray-700 p-6 mx-6 mb-6 w-full max-w-md flex flex-col" style={{ height: `calc(100vh - ${topOffset} - 100px)` }}>
             <h2 className="text-2xl font-bold mb-4 text-left">Mobile Menu</h2>
             <div className="flex-1 overflow-y-auto scrollbar-hide">
               <Accordion type="single" collapsible className="w-full">

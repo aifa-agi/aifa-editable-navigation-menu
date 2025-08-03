@@ -238,7 +238,7 @@ export default function EditableWideMenu({
                     {
                       name: value,
                       href: "#",
-                      roles: [],
+                      roles: ["guest"],
                       hasBadge: false,
                       order:
                         cat.links.length > 0

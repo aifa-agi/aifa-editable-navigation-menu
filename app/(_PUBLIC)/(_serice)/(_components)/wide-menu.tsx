@@ -1,16 +1,13 @@
-// @/app/(_PUBLIC)/(_serice)/(_components)/wide-menu.tsx
-
-"use client";
-
-import React, { useState, useEffect, JSX } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import { menuData } from "@/app/config.ts/menu-data";
-import { MenuCategory, MenuLink } from "@/types/menu-types";
-import { useRole } from "@/app/contexts/role-provider";
+'use client';
+import { useState, useEffect, JSX } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { MenuLink } from '@/types/menu-types';
+import { useRole } from '@/app/contexts/role-provider';
+import { useNavigationMenu } from '@/app/contexts/navigation-menu-provider';
 
 interface WideMenuProps {
   isOpen: boolean;
@@ -21,11 +18,12 @@ const COLUMN_WIDTH = 180;
 const MAX_LINKS_PER_COLUMN_DEFAULT = 10;
 const MAX_LINKS_PER_COLUMN_ACTIVE = 11;
 
-const isSmallCategory = (category: MenuCategory) => category.links.length <= 5;
-const greenDotClass = "bg-emerald-500";
+const isSmallCategory = (category: any) => category.links.length <= 5;
+const greenDotClass = 'bg-emerald-500';
 
 export default function WideMenu({ isOpen, setIsOpen }: WideMenuProps) {
   const { role } = useRole();
+  const { categories } = useNavigationMenu();
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const [activeCategoryTitle, setActiveCategoryTitle] = useState<string | null>(null);
 
@@ -36,10 +34,10 @@ export default function WideMenu({ isOpen, setIsOpen }: WideMenuProps) {
     }
   }, [isOpen]);
 
-  const getFilteredLinks = (links: MenuLink[]) =>
-    links.filter((link) => link.roles.includes(role));
 
-  const roleFilteredCategories = menuData.categories
+  const getFilteredLinks = (links: MenuLink[]) => links.filter((link) => link.roles.includes(role));
+
+  const roleFilteredCategories = categories
     .map((category) => ({
       ...category,
       links: getFilteredLinks(category.links),
@@ -51,11 +49,10 @@ export default function WideMenu({ isOpen, setIsOpen }: WideMenuProps) {
       {links.slice(0, maxLinks).map((link, idx) => {
         const hoverKey = `${link.name}-${idx}`;
         const isHovered = hoveredLink === hoverKey;
-
         return (
           <li key={link.name} style={{ height: 24, marginTop: 12 }}>
             <a
-              href={link.href || "#"}
+              href={link.href || '#'}
               className="group flex items-center justify-between text-white hover:text-gray-300 transition-colors duration-200 relative"
               onMouseEnter={() => setHoveredLink(hoverKey)}
               onMouseLeave={() => setHoveredLink(null)}
@@ -63,22 +60,16 @@ export default function WideMenu({ isOpen, setIsOpen }: WideMenuProps) {
             >
               <span
                 className={cn(
-                  "flex-grow overflow-hidden text-ellipsis whitespace-nowrap flex items-center gap-2",
-                  link.hasBadge && link.badgeName && !isHovered ? "mr-2" : ""
+                  'flex-grow overflow-hidden text-ellipsis whitespace-nowrap flex items-center gap-2',
+                  link.hasBadge && link.badgeName && !isHovered ? 'mr-2' : ''
                 )}
-                style={{
-                  transition: "margin 0.2s"
-                }}
+                style={{ transition: 'margin 0.2s' }}
               >
                 {link.name}
               </span>
               {link.hasBadge && link.badgeName && !isHovered && (
-                <Badge
-                  className={cn(
-                    "shadow-none rounded-full px-2.5 py-0.5 text-xs font-semibold h-6 flex items-center"
-                  )}
-                >
-                  <div className={cn("h-1.5 w-1.5 rounded-full mr-2", greenDotClass)} />
+                <Badge className={cn('shadow-none rounded-full px-2.5 py-0.5 text-xs font-semibold h-6 flex items-center')}>
+                  <div className={cn('h-1.5 w-1.5 rounded-full mr-2', greenDotClass)} />
                   {link.badgeName}
                 </Badge>
               )}
@@ -115,9 +106,7 @@ export default function WideMenu({ isOpen, setIsOpen }: WideMenuProps) {
           <h3 className="text-gray-400 text-sm font-semibold mb-4 tracking-wider border-b border-gray-700 pb-1">
             {current.title}
             <span className="text-gray-500 text-xs ml-1">
-              (
-              {Math.min(current.links.length, MAX_LINKS_PER_COLUMN_DEFAULT)}/
-              {current.links.length})
+              ({Math.min(current.links.length, MAX_LINKS_PER_COLUMN_DEFAULT)}/{current.links.length})
             </span>
           </h3>
           {renderCategoryLinks(current.links, MAX_LINKS_PER_COLUMN_DEFAULT)}
@@ -125,9 +114,7 @@ export default function WideMenu({ isOpen, setIsOpen }: WideMenuProps) {
           <h3 className="text-gray-400 text-sm font-semibold mb-4 tracking-wider border-b border-gray-700 pb-1">
             {next.title}
             <span className="text-gray-500 text-xs ml-1">
-              (
-              {Math.min(next.links.length, MAX_LINKS_PER_COLUMN_DEFAULT)}/
-              {next.links.length})
+              ({Math.min(next.links.length, MAX_LINKS_PER_COLUMN_DEFAULT)}/{next.links.length})
             </span>
           </h3>
           {renderCategoryLinks(next.links, MAX_LINKS_PER_COLUMN_DEFAULT)}
@@ -140,9 +127,7 @@ export default function WideMenu({ isOpen, setIsOpen }: WideMenuProps) {
           <h3 className="text-gray-400 text-sm font-semibold mb-4 tracking-wider border-b border-gray-700 pb-1">
             {current.title}
             <span className="text-gray-500 text-xs ml-1">
-              (
-              {Math.min(current.links.length, MAX_LINKS_PER_COLUMN_DEFAULT)}/
-              {current.links.length})
+              ({Math.min(current.links.length, MAX_LINKS_PER_COLUMN_DEFAULT)}/{current.links.length})
             </span>
           </h3>
           {renderCategoryLinks(current.links, MAX_LINKS_PER_COLUMN_DEFAULT)}
@@ -154,9 +139,7 @@ export default function WideMenu({ isOpen, setIsOpen }: WideMenuProps) {
 
   const activeColumns: JSX.Element[] = [];
   if (activeCategory) {
-    const numColumns = Math.ceil(
-      activeCategory.links.length / MAX_LINKS_PER_COLUMN_ACTIVE
-    );
+    const numColumns = Math.ceil(activeCategory.links.length / MAX_LINKS_PER_COLUMN_ACTIVE);
     for (let col = 0; col < numColumns; col++) {
       const start = col * MAX_LINKS_PER_COLUMN_ACTIVE;
       const end = start + MAX_LINKS_PER_COLUMN_ACTIVE;
@@ -167,13 +150,7 @@ export default function WideMenu({ isOpen, setIsOpen }: WideMenuProps) {
             <h3 className="text-gray-400 text-sm font-semibold mb-4 tracking-wider border-b border-gray-700 pb-1">
               {activeCategory.title}
               <span className="text-gray-500 text-xs ml-1">
-                (
-                {Math.min(
-                  activeCategory.links.length,
-                  MAX_LINKS_PER_COLUMN_ACTIVE
-                )}
-                /
-                {activeCategory.links.length})
+                ({Math.min(activeCategory.links.length, MAX_LINKS_PER_COLUMN_ACTIVE)}/{activeCategory.links.length})
               </span>
             </h3>
           )}
@@ -188,29 +165,25 @@ export default function WideMenu({ isOpen, setIsOpen }: WideMenuProps) {
       {isOpen && (
         <motion.div
           className="fixed inset-x-0 mx-auto bg-black text-white rounded-lg shadow-2xl overflow-hidden z-50"
-          style={{ maxWidth: "80vw", top: "120px", height: "432px" }}
+          style={{ maxWidth: '80vw', top: '120px', height: '432px' }}
           initial={{ opacity: 0, y: -100 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -100 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
         >
           <div className="flex h-full">
             <div className="flex-1 p-8 pb-12 overflow-y-hidden flex custom-scrollbar overflow-x-auto flex-nowrap">
               {activeCategory ? activeColumns : defaultColumns}
             </div>
             <div className="w-80 bg-gray-900 p-8 flex flex-col">
-              <h3 className="text-gray-400 text-sm font-semibold mb-2 tracking-wider">
-                CATEGORIES
-              </h3>
+              <h3 className="text-gray-400 text-sm font-semibold mb-2 tracking-wider">CATEGORIES</h3>
               <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar">
                 {roleFilteredCategories.map((category) => (
                   <div key={category.title} className="p-1">
                     <Card
                       className={cn(
-                        "bg-gray-800 p-4 rounded-lg hover:bg-gray-700 transition-colors duration-200 cursor-pointer h-[60px]",
-                        activeCategoryTitle === category.title
-                          ? "ring-2 ring-white"
-                          : ""
+                        'bg-gray-800 p-4 rounded-lg hover:bg-gray-700 transition-colors duration-200 cursor-pointer h-[60px]',
+                        activeCategoryTitle === category.title ? 'ring-2 ring-white' : ''
                       )}
                       onClick={() => setActiveCategoryTitle(category.title)}
                     >

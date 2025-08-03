@@ -1,36 +1,26 @@
-// @/app/(_PROTECTED)/admin/(_service)/(_components)/editable-nav-bar.tsx
-
 "use client";
-
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EditableWideMenu from "./editable-wide-menu";
 import EditableMobileMenu from "./editable-mobile-menu";
-import { menuData } from "@/app/config.ts/menu-data";
-import type { MenuCategory } from "@/types/menu-types";
+import { useNavigationMenu } from "@/app/contexts/navigation-menu-provider";
 import { toast } from "sonner";
 
 const HEADER_HEIGHT = 56;
 const MOBILE_MENU_OFFSET = 40;
 
-function fakeServerUpdate(data: MenuCategory[]): Promise<"ok"> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve("ok"), 3000);
-  });
-}
-
-function isCategoriesEqual(a: MenuCategory[], b: MenuCategory[]): boolean {
-  return JSON.stringify(a) === JSON.stringify(b);
-}
-
 export default function EditableNavBar() {
   const [isLargeScreen, setIsLargeScreen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [categories, setCategories] = useState<MenuCategory[]>(menuData.categories);
-  const serverCategoriesRef = useRef<MenuCategory[]>(menuData.categories);
-  const dirty = !isCategoriesEqual(categories, serverCategoriesRef.current);
-  const [loading, setLoading] = useState(false);
+
+  const {
+    categories,
+    setCategories,
+    loading,
+    dirty,
+    updateCategories
+  } = useNavigationMenu();
 
   useEffect(() => {
     const handleResize = () => setIsLargeScreen(window.innerWidth >= 1024);
@@ -55,15 +45,12 @@ export default function EditableNavBar() {
   const handleOverlayClick = () => setIsOpen(false);
 
   const handleUpdate = async () => {
-    setLoading(true);
     try {
-      await fakeServerUpdate(categories);
-      serverCategoriesRef.current = JSON.parse(JSON.stringify(categories));
+      await updateCategories();
       toast.success("All changes pushed to fake server");
     } catch {
       toast.error("Error updating on server");
     }
-    setLoading(false);
   };
 
   return (
